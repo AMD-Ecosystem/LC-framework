@@ -218,7 +218,7 @@ static void h_preprocess_decode(long long& hpredecsize, byte*& hpredecdata, std:
 #ifdef USE_GPU
 static __global__ void initBestSize(unsigned short* const bestSize, const int chunks)
 {
-  if ((threadIdx.x == 0) && (WS != warpSize)) {printf("ERROR: WS must be %d\n\n", warpSize); __trap();}  // debugging only
+  if ((threadIdx.x == 0) && (WS != warpSize)) {printf("ERROR: WS must be %d\n\n", (int)warpSize); __trap();}  // debugging only
   for (int i = threadIdx.x; i < chunks; i += TPB) {
     bestSize[i] = CS;
   }
