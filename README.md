@@ -62,6 +62,20 @@ For the GPU, use:
 
 You may have to adjust these commands and flags to your system and compiler. For instance, the *sm_70* should be changed to match your GPU's compute capability.
 
+For AMD GPUs, the same generated code can be compiled with ROCm. First convert it and the headers it includes from CUDA to HIP with hipify-perl, then compile the converted code with hipcc:
+
+    ./generate_Device_LC-Framework.py
+    hipify-perl -inplace lc.cu lc.h
+    for h in framework.h $(find include components preprocessors verifiers -name '*.h'); do hipify-perl -inplace "$h"; done
+    hipcc -O3 --offload-arch=<arch> -ffp-contract=off -DUSE_GPU -I. -std=c++17 -c -o lc.o lc.cu
+    hipcc --offload-arch=<arch> -o lc lc.o
+
+The architecture in *--offload-arch* should be changed to match your GPU, for which rocminfo prints the corresponding *gfx* name. The *-ffp-contract=off* flag plays the same role as nvcc's *-fmad=false* and keeps the lossy quantizers bit-for-bit consistent with the CPU version; the lossless components are integer-only and are unaffected by it.
+
+The conversion must run before the compilation, and not only because of the API calls: hipify-perl also inserts the HIP runtime header, which is what allows the code to detect the wavefront width of your GPU, so compiling the unconverted code silently selects the wrong width. Note that hipify-perl occasionally skips files when it is invoked in a long loop, so it is worth verifying that no CUDA spellings are left, for example with grep -rn cudaMalloc ., before compiling.
+
+On Windows, hipcc compiles the host code with clang-cl, so the Microsoft Visual C++ tools have to be in the path, and hipify-perl, being a Perl script, has to be invoked through a Perl interpreter.
+
 The generate_Hybrid_LC-Framework.py script is only for testing and should not be used as it generates slow code.
 
 
@@ -185,6 +199,16 @@ For the GPU, use:
     nvcc -O3 -arch=sm_70 -fmad=false -Xcompiler "-O3 -march=native -fopenmp -mno-fma -ffp-contract=off" -I. -o decompress decompressor-standalone.cu
 
 You may have to adjust these commands and flags to your system and compiler. For instance, the *sm_70* should be changed to match your GPU's compute capability.
+
+For AMD GPUs, convert the generated files and the headers they include with hipify-perl, as in the installation section above, and compile them with hipcc:
+
+    ./generate_standalone_GPU_compressor_decompressor.py "" "TUPL4_1 RRE_1 CLOG_1"
+    hipify-perl -inplace compressor-standalone.cu decompressor-standalone.cu
+    for h in framework.h $(find include components preprocessors verifiers -name '*.h'); do hipify-perl -inplace "$h"; done
+    hipcc -O3 --offload-arch=<arch> -ffp-contract=off -I. -std=c++17 -c -o compress.o compressor-standalone.cu
+    hipcc --offload-arch=<arch> -o compress compress.o
+    hipcc -O3 --offload-arch=<arch> -ffp-contract=off -I. -std=c++17 -c -o decompress.o decompressor-standalone.cu
+    hipcc --offload-arch=<arch> -o decompress decompress.o
 
 At this point, you can compress files with:
 
