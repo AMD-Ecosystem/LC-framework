@@ -49,9 +49,13 @@ static const int max_stages = 8;  // cannot be more than 8
 #include <cstdio>
 #include <string>
 #include <cstring>
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 #include <cassert>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <limits>
 #include <algorithm>
 #include <vector>
@@ -60,7 +64,9 @@ static const int max_stages = 8;  // cannot be more than 8
 #include <ctime>
 #include <regex>
 #include <stdexcept>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 
 
 #if defined(_OPENMP)
