@@ -53,6 +53,7 @@ static const int TPB = 512;  // threads per block [must be power of 2 and at lea
 
 #include <cmath>
 #include <string>
+#include <cstring>
 #include <cassert>
 #include <stdexcept>
 #include <cuda.h>

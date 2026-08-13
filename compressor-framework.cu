@@ -52,6 +52,7 @@ static const int TPB = 512;  // threads per block [must be power of 2 and at lea
 #endif
 
 #include <string>
+#include <cstring>
 #include <cmath>
 #include <cassert>
 #include <stdexcept>
