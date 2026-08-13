@@ -72,7 +72,7 @@ For AMD GPUs, the same generated code can be compiled with ROCm. First convert i
 
 The architecture in *--offload-arch* should be changed to match your GPU, for which rocminfo prints the corresponding *gfx* name. The *-ffp-contract=off* flag plays the same role as nvcc's *-fmad=false* and keeps the lossy quantizers bit-for-bit consistent with the CPU version; the lossless components are integer-only and are unaffected by it.
 
-Note that hipify-perl rewrites the files it is given in place, including the framework headers that are part of the source tree, which no longer compile with nvcc afterwards. It saves every file it changes under the same name with a *.prehip* extension first, and those backups are already excluded by the .gitignore. Note also that hipify-perl occasionally skips files when it is invoked in a long loop, so it is worth verifying that no CUDA spellings are left, for example with grep -rn cudaMalloc ., before compiling.
+Note that hipify-perl rewrites the files it is given in place, including the framework headers that are part of the source tree, which no longer compile with nvcc afterwards. It saves every file it changes under the same name with a *.prehip* extension first, and those backups are already excluded by the .gitignore. The conversion loop is long, and if it is cut short before it finishes then some of the headers are still in their CUDA form; that shows up when compiling as an undeclared identifier such as *cudaMalloc*, and running the loop again converts what is left.
 
 On Windows, hipcc compiles the host code with clang-cl, so the Microsoft Visual C++ tools have to be in the path, and hipify-perl, being a Perl script, has to be invoked through a Perl interpreter.
 
