@@ -80,7 +80,8 @@ static inline __device__ int __reduce_add_sync(const int mask, int val)
   #include <limits>
   // Recent ROCm provides __syncwarp natively (amd_warp_sync_functions.h, unless
   // HIP_DISABLE_WARP_SYNC_BUILTINS); only shim it for older toolchains.
-  #if defined(HIP_DISABLE_WARP_SYNC_BUILTINS)
+  #if defined(HIP_DISABLE_WARP_SYNC_BUILTINS) || \
+      !__has_include(<hip/amd_detail/amd_warp_sync_functions.h>)
   static inline __device__ void __syncwarp() {}
   #endif
   #define __trap() abort()
